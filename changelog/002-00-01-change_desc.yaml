@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-00
+      author: carrramirez
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/ddl/002-00-01-create_table.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/002-00/002-00-01-rollback.sql
