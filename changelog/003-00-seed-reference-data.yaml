@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-00
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/dml/003-00-01-insert-country-reference.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/003-00/003-00-01-rollback.sql
