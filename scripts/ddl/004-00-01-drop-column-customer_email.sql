@@ -1,0 +1,2 @@
+ALTER TABLE app.customer
+DROP COLUMN IF EXISTS email;
