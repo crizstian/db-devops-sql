@@ -1,5 +1,3 @@
 databaseChangeLog:
   - include:
-      file: changelog/001-00-change_desc.yaml
-  - include:
-      file: changelog/002-00-01-change_desc.yaml # test feat 2
+      file: changelog/001-00-init-schema.yaml
