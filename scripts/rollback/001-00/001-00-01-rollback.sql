@@ -1,1 +1,2 @@
-DROP TABLE IF EXISTS test_pipeline_liquibase;
+DROP TABLE IF EXISTS app.customer;
+DROP SCHEMA IF EXISTS app;
