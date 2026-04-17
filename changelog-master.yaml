@@ -3,3 +3,7 @@ databaseChangeLog:
       file: changelog/001-00-init-schema.yaml
   - include:
       file: changelog/002-00-add-column-customer.yaml
+  - include:
+      file: changelog/003-00-seed-reference-data.yaml
+  - include:
+      file: changelog/004-00-drop-column-email.yaml
