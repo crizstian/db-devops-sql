@@ -1,11 +1,12 @@
 databaseChangeLog:
   - changeSet:
       id: 004-00
-      author: carrramirez
-      context: state:feature
+      author: cristian
+      context: state:destructive
+      labels: "requires-dba-approval"
       changes:
         - sqlFile:
-            path: scripts/ddl/004-00-01-drop-column-customer_email.sql
+            path: scripts/ddl/004-00-01-drop-column-email.sql
       rollback:
         - sqlFile:
             path: scripts/rollback/004-00/004-00-01-rollback.sql

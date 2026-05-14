@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  db_devops_sql:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    env_file:
+      - .env
+    volumes:
+      - ../:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.kube:/home/devuser/.kube:ro
+      - ${HOME}/Obsidian/Harness:/workspace/obsidian:rw
+      - ${HOME}/.config/gcloud:/home/devuser/.config/gcloud:rw
+    working_dir: /workspace
+    user: devuser
+    container_name: db_devops_sql
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    # networks:
+    #   - mcp-network 
+
+# networks:
+#   mcp-network:
+#     external: true
+#     name: mcp-network

@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-01
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/ddl/004-01-01-add-column-country_code.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/004-01/004-01-01-rollback.sql

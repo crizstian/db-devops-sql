@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 007-00
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/ddl/007-00-01-create-view-customer_country.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/007-00/007-00-01-rollback.sql

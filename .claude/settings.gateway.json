@@ -1,0 +1,85 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(GOPATH=/workspace/.go GOMODCACHE=/workspace/.go/pkg/mod go mod tidy:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go mod tidy:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go test:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go list:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go build:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go work sync:*)",
+      "Bash(chmod:*)",
+      "Bash(docker-compose config:*)",
+      "Bash(bash -n:*)",
+      "Bash(bash:*)",
+      "Bash(docker-compose:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker build:*)",
+      "Bash(python3:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(go work:*)",
+      "Bash(go build:*)",
+      "Bash(go list:*)",
+      "Bash(go test:*)",
+      "Bash(docker --version)",
+      "Bash(gh pr:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh repo:*)",
+      "Bash(curl -s http://host.docker.internal:8811/*)",
+      "Bash(curl http://localhost:8811/*)",
+      "Bash(npx -y harness-mcp-v2 --help)",
+      "Bash(npx -y @modelcontextprotocol/server-github --help)",
+      "Bash(env)",
+      "Read(//usr/local/bin/**)",
+      "Read(//home/devuser/.vscode-server/data/Machine/**)"
+    ]
+  },
+  "model": "claude-opus-4-5",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/watch-pipeline.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify-pipeline-status.sh",
+            "timeout": 60,
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "allowedTools": [
+    "Bash",
+    "Read",
+    "Write",
+    "Edit",
+    "Glob",
+    "Grep",
+    "mcp__gateway__*",
+    "mcp__perplexity__*",
+    "mcp__harness__*",
+    "mcp__github__*",
+    "mcp__obsidian__*",
+    "mcp__atlassian__*",
+    "mcp__notion__*"
+  ],
+  "enabledMcpjsonServers": ["gateway", "harness", "github", "perplexity"]
+}

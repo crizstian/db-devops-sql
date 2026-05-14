@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-00
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/dml/008-00-01-update-email-domain.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/008-00/008-00-01-rollback.sql

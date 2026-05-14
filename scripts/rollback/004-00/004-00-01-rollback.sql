@@ -1,4 +1,4 @@
 ALTER TABLE app.customer
 ADD COLUMN email TEXT;
 
-COMMENT ON COLUMN app.customer.email IS 'Customer email address (recreated after rollback of drop column)';
+COMMENT ON COLUMN app.customer.email IS 'Customer email address (restored after rollback)';
