@@ -1,7 +1,6 @@
 databaseChangeLog:
   - changeSet:
       id: 002-00
-      author: cristian
       context: state:feature
       changes:
         - sqlFile:
