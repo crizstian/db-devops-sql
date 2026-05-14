@@ -37,7 +37,7 @@
 |-----|---------|-----------|
 | 0-2 | Contexto | Por qué Database DevOps |
 | 2-4 | Escenario 1 | Developer crea nueva tabla ✅ |
-| 4-6 | Escenario 2 | Negocio solicita nuevo campo ✅ |
+| 4-6 | Escenario 2 | Negocio solicita nuevo campo ✅ → **OPA BLOQUEA** por tener un autor ❌|
 | 6-8 | Escenario 3 | Developer intenta DROP → **OPA BLOQUEA** ❌ |
 | 8-10 | Escenario 4 | Insertar datos de prueba ✅ |
 | 10-12 | Escenario 5 | UPDATE sin WHERE → **OPA BLOQUEA** ❌ |
