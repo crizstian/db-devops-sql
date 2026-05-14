@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-00
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/ddl/006-00-01-rename-column-name-full_name.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/006-00/006-00-01-rollback.sql

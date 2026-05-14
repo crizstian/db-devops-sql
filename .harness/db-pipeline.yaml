@@ -1,0 +1,267 @@
+pipeline:
+  name: DB - PostgresSQL
+  identifier: DBPostgresSQL
+  projectIdentifier: CristianRamirez
+  orgIdentifier: sandbox
+  tags: {}
+  stages:
+    - stage:
+        name: quality check
+        identifier: quality_check
+        description: ""
+        type: SecurityTests
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: false
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - parallel:
+                  - step:
+                      type: Semgrep
+                      name: Semgrep
+                      identifier: Semgrep
+                      spec:
+                        mode: orchestration
+                        config: default
+                        target:
+                          type: repository
+                          detection: auto
+                        advanced:
+                          log:
+                            level: info
+                  - step:
+                      type: Run
+                      name: naming convention
+                      identifier: naming_convention
+                      spec:
+                        shell: Sh
+                        command: |-
+                          # Directorio donde están tus changelogs
+                          DIR="changelog"
+
+                          # Patrón de nombre permitido, ajusta extensión según tu caso
+                          PATRON='^(\d{3}-\d{2}(?:-\d{2})?|release-\d+-\d+-\d+)-[a-z0-9-]+\.(yaml|yml|xml|sql)$'
+
+                          cd "$DIR" || {
+                            echo "No se pudo entrar al directorio $DIR"
+                            exit 1
+                          }
+
+                          echo "Revisando nombres de archivos en $DIR"
+                          echo "Patrón permitido: $PATRON"
+                          echo
+
+                          STATUS=0
+
+                          for f in *; do
+                            # Solo archivos normales
+                            [ -f "$f" ] || continue
+
+                            # Usar grep -E para regex en shell POSIX
+                            if printf '%s\n' "$f" | grep -Eq "$PATRON"; then
+                              echo "✅ OK    : $f"
+                            else
+                              echo "ERROR : $f  <-- no cumple la nomenclatura"
+                              STATUS=1
+                            fi
+                          done
+
+                          exit "$STATUS"
+                      failureStrategies:
+                        - onFailure:
+                            errors:
+                              - AllErrors
+                            action:
+                              type: Ignore
+        when:
+          pipelineStatus: Success
+          condition: <+trigger.payload.pull_req.state> == "open" || <+trigger.payload.pull_req.state> == null
+    - stage:
+        name: db-validate
+        identifier: dbvalidate
+        description: ""
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - stepGroup:
+                  name: dbdevops
+                  identifier: dbdevops
+                  steps:
+                    - step:
+                        type: LiquibaseCommand
+                        name: Validate
+                        identifier: Validate
+                        spec:
+                          connectorRef: account.harnessImage
+                          command: validate
+                          dbSchema: dbdevopsdemo
+                          dbInstance: gcpcloudsqldev
+                        timeout: 10m
+                        enforce:
+                          policySets:
+                            - Database_Changes
+                    - step:
+                        type: LiquibaseCommand
+                        name: Get Change
+                        identifier: Get_Change
+                        spec:
+                          connectorRef: account.harnessImage
+                          command: update-sql
+                          settings:
+                            output-file: update.sql
+                          dbSchema: dbdevopsdemo
+                          dbInstance: gcpcloudsqldev
+                        timeout: 10m
+                    - step:
+                        type: DBSchemaUpdateSQL
+                        name: Get Update
+                        identifier: Get_Update
+                        spec:
+                          connectorRef: account.harnessImage
+                          dbSchema: dbdevopsdemo
+                          dbInstance: gcpcloudsqldev
+                        timeout: 10m
+                        enforce:
+                          policySets:
+                            - Enforce_SQL_Compliance
+                    - step:
+                        type: Run
+                        name: Parse Change
+                        identifier: Parse_Change
+                        spec:
+                          connectorRef: account.harnessImage
+                          image: library/nginx
+                          shell: Sh
+                          command: CHANGES=$(printf '%s' "$(cat update.sql)" | base64 --wrap=0)
+                          outputVariables:
+                            - name: CHANGES
+                              type: String
+                              value: CHANGES
+                  stepGroupInfra:
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: org.se_sandbox_k8s
+                      namespace: default
+              - step:
+                  type: ShellScript
+                  name: decode change
+                  identifier: decode_change
+                  spec:
+                    shell: Bash
+                    executionTarget: {}
+                    source:
+                      type: Inline
+                      spec:
+                        script: |-
+                          decoded=$(printf '%s' "<+execution.steps.dbdevops.steps.Parse_Change.output.outputVariables.CHANGES>" | base64 --decode)
+
+                          echo $decoded
+                    environmentVariables: []
+                    outputVariables:
+                      - name: DB_CHANGES
+                        type: String
+                        value: decoded
+                  timeout: 10m
+              - step:
+                  type: JiraCreate
+                  name: Ticket Authorize
+                  identifier: Ticket_Authorize
+                  spec:
+                    connectorRef: account.Harness_JIRA
+                    projectKey: HD
+                    issueType: Story
+                    fields:
+                      - name: Description
+                        value: "Pipeline Name: <+pipeline.name> Deployment URL: <+pipeline.executionUrl> Requested by <+pipeline.triggeredBy.name>Change summary: <+execution.steps.decode_change.output.outputVariables.DB_CHANGES>"
+                      - name: Summary
+                        value: Begin promotion of database changes to production
+                  timeout: 10m
+            rollbackSteps: []
+          serviceDependencies: []
+        tags: {}
+        when:
+          pipelineStatus: Success
+          condition: <+trigger.payload.pull_req.state> == "merged" || <+trigger.payload.pull_req.state> == null
+    - stage:
+        name: db-deploy
+        identifier: dbdeploy
+        description: ""
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - stepGroup:
+                  name: dbdevops
+                  identifier: dbdevops
+                  steps:
+                    - step:
+                        type: DBSchemaApply
+                        name: DBSchemaApply
+                        identifier: DBSchemaApply
+                        spec:
+                          connectorRef: account.harnessImage
+                          migrationType: Liquibase
+                          dbSchema: dbdevopsdemo
+                          dbInstance: gcpcloudsqldev
+                          tag: "<+trigger.commitSha> "
+                        timeout: 10m
+                        enforce:
+                          policySets:
+                            - Database_Changes
+                            - Enforce_SQL_Compliance
+                  stepGroupInfra:
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: org.se_sandbox_k8s
+                      namespace: default
+              - step:
+                  type: Wait
+                  name: Wait
+                  identifier: Wait
+                  spec:
+                    duration: 10m
+              - stepGroup:
+                  name: rollback
+                  identifier: rollback
+                  steps:
+                    - step:
+                        type: DBSchemaRollback
+                        name: DBSchemaRollback_1
+                        identifier: DBSchemaRollback_1
+                        spec:
+                          connectorRef: account.harnessImage
+                          migrationType: Liquibase
+                          dbSchema: dbdevopsdemo
+                          dbInstance: gcpcloudsqldev
+                          changeSetCount: 1
+                        timeout: 10m
+                  stepGroupInfra:
+                    type: KubernetesDirect
+                    spec:
+                      connectorRef: org.se_sandbox_k8s
+                      namespace: default
+            rollbackSteps: []
+          serviceDependencies: []
+        tags: {}
+        when:
+          pipelineStatus: Success
+          condition: <+trigger.payload.pull_req.state> == "merged" || <+trigger.payload.pull_req.state> == null
+  allowStageExecutions: true
+  properties:
+    ci:
+      codebase:
+        connectorRef: CristianConnector
+        repoName: db-devops-sql
+        build: <+input>
+        sparseCheckout: []

@@ -1,0 +1,92 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(go mod tidy:*)",
+      "Bash(GOPATH=/workspace/.go GOMODCACHE=/workspace/.go/pkg/mod go mod tidy:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go mod tidy:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go test:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go list:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go build:*)",
+      "Bash(GOPATH=/tmp/go-cache GOMODCACHE=/tmp/go-cache/pkg/mod go work sync:*)",
+      "Bash(done)",
+      "Bash(chmod:*)",
+      "Bash(docker-compose config:*)",
+      "Bash(bash -n:*)",
+      "Bash(bash:*)",
+      "Bash(SERVICE=booking-service VERSION=v1.0.0-test bash -x /workspace/scripts/build-image.sh)",
+      "Bash(docker-compose:*)",
+      "Bash(python3:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(go work:*)",
+      "Bash(test:*)",
+      "Bash(go build ./...)",
+      "Bash(go build:*)",
+      "Bash(go list:*)",
+      "Bash(go test:*)",
+      "Bash([ -f \"/workspace/services/$service/go.mod\" ])",
+      "Bash(docker build:*)",
+      "Bash(docker compose:*)",
+      "Read(//usr/local/bin/**)",
+      "Bash(docker --version)",
+      "Bash(gh pr:*)",
+      "Bash(gh auth:*)",
+      "Bash(sudo curl:*)",
+      "Bash(sudo chmod:*)",
+      "Bash(docker exec mongo1 mongosh --quiet --eval ':*)",
+      "Bash(env)",
+      "Bash(docker exec mongo1 mongosh --quiet -u cristian -p cristianPassword2017 --authenticationDatabase admin --eval ':*)",
+      "Read(//home/devuser/.vscode-server/data/Machine/**)",
+      "Bash(npx -y harness-mcp-v2 --help)",
+      "Bash(npx -y @modelcontextprotocol/server-github --help)"
+    ]
+  },
+  "model": "claude-opus-4-5",
+  "enabledMcpjsonServers": [
+    "harness",
+    "github",
+    "perplexity",
+    "mcp-gateway"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/watch-pipeline.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify-pipeline-status.sh",
+            "timeout": 60,
+            "async": true
+          }
+        ]
+      }
+    ]
+  },
+  "allowedTools": [
+    "Bash",
+    "Read",
+    "Write",
+    "Edit",
+    "Glob",
+    "Grep",
+    "mcp__perplexity__*",
+    "mcp__harness__*",
+    "mcp__github__*"
+  ],
+  "enableAllProjectMcpServers": true
+}

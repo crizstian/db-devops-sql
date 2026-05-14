@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-00
+      author: cristian
+      context: state:feature
+      changes:
+        - sqlFile:
+            path: scripts/ddl/005-00-01-create-index-customer_email.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/005-00/005-00-01-rollback.sql

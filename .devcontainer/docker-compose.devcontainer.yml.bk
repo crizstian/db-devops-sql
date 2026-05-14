@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  prompt_engineering:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    env_file:
+      - .env
+    volumes:
+      - ../:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${HOME}/.config/gcloud:/home/devuser/.config/gcloud:rw
+    working_dir: /workspace
+    user: devuser
+    container_name: prompt_engineering
+    command: /bin/sh -c "while sleep 1000; do :; done"

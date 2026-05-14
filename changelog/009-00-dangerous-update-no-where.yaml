@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 009-00
+      author: cristian
+      context: state:destructive
+      labels: "dangerous,no-where-clause"
+      changes:
+        - sqlFile:
+            path: scripts/dml/009-00-01-update-all-emails.sql
+      rollback:
+        - sqlFile:
+            path: scripts/rollback/009-00/009-00-01-rollback.sql

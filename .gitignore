@@ -1,0 +1,47 @@
+**/test_env.sh
+.DS_STORE
+
+# Test results
+tests/test-results/
+
+**/.terraform
+**/ubuntu*
+**/.vagrant
+
+**/terraform.tfstate
+**/terraform.tfstate.backup
+
+**/vault/bin/
+**/hashicorp/bin/
+
+**/gcp.json
+
+# Go build artifacts
+*.exe
+*.test
+*.out
+
+# Go compiled binaries (microservices)
+services/booking/booking
+services/cinema/cinema
+services/movie/movie
+services/notification/notification
+services/payment/payment
+services/seat/seat
+services/showtime/showtime
+services/user/user
+
+# Go workspace and cache
+.go/
+/tmp/go-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+.env
+node_modules
+obsidian/
