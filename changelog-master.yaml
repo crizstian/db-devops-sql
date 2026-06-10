@@ -8,8 +8,8 @@ databaseChangeLog:
       file: changelog/002-00-add-column-customer.yaml
 
 #   # Escenario 4: Insertar datos de referencia
-#   - include:
-#       file: changelog/003-00-seed-reference-data.yaml
+  - include:
+      file: changelog/003-00-seed-reference-data.yaml
 
 #   # Escenario 3: DROP column - OPA BLOQUEA
 #   - include:
